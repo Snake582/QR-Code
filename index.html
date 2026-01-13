@@ -1,50 +1,75 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Code avec téléchargement</title>
+  <meta charset="UTF-8" />
+  <title>QR Code – Cabinet IDAC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    :root {
+      --primary: #0d47ff;
+      --dark: #000;
+      --light: #fff;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f2f4f8;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .container {
-      background: white;
-      padding: 25px;
-      border-radius: 20px;
+      background: var(--primary);
+      color: var(--light);
+      padding: 30px;
+      border-radius: var(--radius-lg);
       text-align: center;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
     }
 
     .qr-wrapper {
       position: relative;
-      width: 340px;
-      height: 340px;
-      margin: auto;
+      width: 320px;
+      height: 320px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 10px;
     }
 
     #qrcode {
-      width: 300px;
-      height: 300px;
-      margin: auto;
+      width: 100%;
+      height: 100%;
     }
 
     .qr-logo {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 70px;
-      height: 70px;
+      inset: 50%;
       transform: translate(-50%, -50%);
+      width: 64px;
+      height: 64px;
       background: white;
-      padding: 8px;
       border-radius: 14px;
+      padding: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
     .qr-logo img {
@@ -53,86 +78,94 @@
       object-fit: contain;
     }
 
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
     button {
-      margin-top: 15px;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 14px;
-      background: #000;
-      color: white;
+      font-weight: 500;
+      background: var(--dark);
+      color: var(--light);
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
     button:hover {
-      opacity: 0.85;
+      opacity: 0.9;
+      transform: translateY(-1px);
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>QR Code Site web Cabinet Idac</h2>
+  <main class="container">
+    <h2>QR Code – Cabinet IDAC</h2>
 
-  <div class="qr-wrapper" id="qr-area">
-    <div id="qrcode"></div>
+    <div class="qr-wrapper" id="qr-area">
+      <div id="qrcode"></div>
 
-    <div class="qr-logo">
-      <img src="OIP (5).webp" alt="Logo">
+      <div class="qr-logo">
+        <img src="OIP (5).webp" alt="Logo Cabinet IDAC">
+      </div>
     </div>
-  </div>
 
-  <button onclick="downloadPNG()">📥 Télécharger PNG</button>
-  <button onclick="downloadPDF()">📄 Exporter PDF</button>
-</div>
+    <div class="actions">
+      <button id="pngBtn">📥 Télécharger PNG</button>
+      <button id="pdfBtn">📄 Exporter PDF</button>
+    </div>
+  </main>
 
-<!-- QRCode -->
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- QRCode -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-<!-- html2canvas -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-<!-- jsPDF -->
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-<script>
-  const url = "https://www.monsite.com"; // 🔗 ton site ici
+  <script>
+    const SITE_URL = "https://www.monsite.com";
+    const QR_AREA = document.getElementById("qr-area");
 
-  new QRCode(document.getElementById("qrcode"), {
-    text: url,
-    width: 330,
-    height: 330,
-    correctLevel: QRCode.CorrectLevel.H
-  });
+    new QRCode(document.getElementById("qrcode"), {
+      text: SITE_URL,
+      width: 300,
+      height: 300,
+      correctLevel: QRCode.CorrectLevel.H
+    });
 
-  function downloadPNG() {
-    html2canvas(document.getElementById("qr-area")).then(canvas => {
+    document.getElementById("pngBtn").addEventListener("click", async () => {
+      const canvas = await html2canvas(QR_AREA, { scale: 3 });
       const link = document.createElement("a");
-      link.download = "qr-code.png";
-      link.href = canvas.toDataURL();
+      link.download = "qr-code-cabinet-idac.png";
+      link.href = canvas.toDataURL("image/png");
       link.click();
     });
-  }
 
-  async function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("portrait", "mm", "a4");
+    document.getElementById("pdfBtn").addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("portrait", "mm", "a4");
 
-    const canvas = await html2canvas(document.getElementById("qr-area"), {
-      scale: 3
+      const canvas = await html2canvas(QR_AREA, { scale: 3 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgSize = 120;
+      const x = (pageWidth - imgSize) / 2;
+
+      pdf.addImage(imgData, "PNG", x, 60, imgSize, imgSize);
+      pdf.save("qr-code-cabinet-idac.pdf");
     });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgSize = 120;
-    const x = (pageWidth - imgSize) / 2;
-    const y = 60;
-
-    pdf.addImage(imgData, "PNG", x, y, imgSize, imgSize);
-    pdf.save("qr-code-impression.pdf");
-  }
-</script>
+  </script>
 
 </body>
 </html>
